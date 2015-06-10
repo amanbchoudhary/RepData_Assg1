@@ -6,19 +6,7 @@ Reproducible Research Peer Assignment 1
 1. Loading the activity.csv file.
 
 ```r
-activity <- read.csv ("E:./activity.csv")
-```
-
-```
-## Warning in file(file, "rt"): cannot open file 'E:./activity.csv': No such
-## file or directory
-```
-
-```
-## Error in file(file, "rt"): cannot open the connection
-```
-
-```r
+activity <- read.csv ("E:/Documents/Data Science Spl/Reproducible Research/Peer Assg 1/activity.csv")
 head (activity)
 ```
 
@@ -265,4 +253,5 @@ ggplot (avg_int_wd , aes (x = interval  , y = steps)) +geom_line() + facet_grid 
 ![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
 
 As clearly seen from the plot, the average activity on weekend is lower than on weekdays.
+
 
