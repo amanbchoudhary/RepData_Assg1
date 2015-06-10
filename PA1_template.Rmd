@@ -1,0 +1,119 @@
+Reproducible Research Peer Assignment 1
+=============================================
+
+###Loading and Preprocessing the data
+
+1. Loading the activity.csv file.
+```{r echo = T}
+activity <- read.csv ("E:./activity.csv")
+head (activity)
+```
+
+2. Pre-Processing the data (Changing  class of date variable)
+```{r}
+activity$date <- as.Date (activity$date)
+```
+
+###What is mean total number of steps taken per day?
+
+1. Removing all NA values
+```{r}
+act_good <- activity [ complete.cases(activity),]
+head (act_good , n=  3)
+```
+
+2. Calculating total number of steps each day
+```{r}
+total <- aggregate (steps~date, act_good, sum)
+head (total , n =3)
+```
+
+3. Plotting a histogram and printing mean and median values
+```{r , fig.height= 4}
+hist (total$steps ,breaks = 10, col = "red" , xlab = "Total Number of Step"  , main = "Total Steps in a Day")
+mean (total$steps)
+median (total$steps)
+```
+
+###What is the average daily activity pattern?
+1. Aggregating by interval and Calculating Mean
+```{r}
+avg_int <- aggregate (steps~interval, act_good , mean)
+head (avg_int)
+```
+
+2. Plotting the mean
+```{r}
+with (avg_int , plot (steps~interval , type = "l" , xlab = "Interval" , ylab = "Average Steps"))
+```
+
+3. Checking which 5 minute interval has maximum average steps
+```{r}
+index <- which.max (avg_int$steps)
+avg_int$interval[index]
+```
+
+###Imputing missing values
+
+1. Getting the number of missing values
+```{r}
+idx <- is.na (activity$step)
+sum (idx)
+```
+
+We will use the mean number of steps per 5 minute interval to fill out the missing values.
+
+2. Copying datasets into another data frame and  Replacing those NA values with  average values corresponding to same intervals
+
+```{r , cache=TRUE}
+activity_mod <- activity
+for (i in idx)
+    {
+    activity_mod$steps[idx] = avg_int$steps[ avg_int$interval == activity_mod$interval[idx]]
+    }
+head (activity_mod)
+```
+
+3. Plotting histogram and calculating mean and median of total number of steps per day
+
+```{r ,fig.height= 4}
+total2 <- aggregate (steps~date , activity_mod , sum)
+head (total2)
+hist (total2$steps ,breaks = 10, col = "red" , xlab = "Total Number of Step"  , main = "Total Steps in a Day")
+mean (total2$steps)
+median (total2$steps)
+```
+
+Compared to original data , mean has not changed but median has seen a very small change.
+
+###Are there differences in activity patterns between weekdays and weekends?
+
+1. Determining the type of day
+```{r , cache=TRUE}
+activity_mod$wd <- weekdays (activity_mod$date)
+for (i in 1:nrow(activity_mod))
+    {
+    if (activity_mod$wd[i] == "Sunday" | activity_mod$wd[i] == "Saturday")
+        activity_mod$wd[i] = "weekend"
+    else 
+        activity_mod$wd[i] = "weekday"
+}
+head (activity_mod$wd)
+```
+
+2. Converting it to a factor
+```{r}
+activity_mod$wd <- as.factor (activity_mod$wd)
+head (activity_mod$wd)
+```
+
+3. Plotting the Graph
+```{r, fig.height= 6}
+library(ggplot2)
+avg_int_wd <- aggregate (steps~interval+wd,activity_mod , mean)
+head (avg_int_wd)
+ggplot (avg_int_wd , aes (x = interval  , y = steps)) +geom_line() + facet_grid (wd~.)+ xlab ("Interval") + ylab ("Average Number of Steps") + theme_bw()+ ggtitle("Weekend and Weekday Distribution")
+```
+
+As clearly seen from the plot, the average activity on weekend is lower than on weekdays.
+
